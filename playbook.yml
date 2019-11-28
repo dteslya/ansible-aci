@@ -1,0 +1,193 @@
+---
+- name: PLAY 1
+  hosts: apic
+  connection: local
+  gather_facts: no
+  
+  tasks:
+    - name: Create tenants
+      aci_tenant:
+        host: "{{ ansible_host }}"
+        username: "{{ username }}"
+        password: "{{ password }}"
+        validate_certs: no
+        tenant: "{{ item.name }}"
+        description: "{{ item.description }}"
+        state: present
+      loop: "{{ tenants | flatten(levels=1) }}"
+
+    - name: Add a new filter to a tenant
+      aci_filter:
+        host: "{{ ansible_host }}"
+        username: "{{ username }}"
+        password: "{{ password }}"
+        validate_certs: no
+        filter: "{{ item.1.name }}"
+        description: "{{ item.1.description }}"
+        tenant: "{{ item.0.name }}"
+        state: present
+      with_subelements:
+        - "{{ tenants }}"
+        - filters
+
+    - name: Add filter entry
+      aci_filter_entry:
+        host: "{{ ansible_host }}"
+        username: "{{ username }}"
+        password: "{{ password }}"
+        validate_certs: no
+        entry: "{{ item.1.entry.name }}"
+        ether_type: "{{ item.1.entry.ether_type }}"
+        filter: "{{ item.1.filter }}"
+        tenant: "{{ item.0.tenant }}"
+        state: present
+      with_subelements: 
+        - "{{ tenants | json_query('[*].{tenant:name, entries:filters[].{entry:entries[] | [0], filter:name}}') }}"
+        - entries
+
+    - name: Create VRFs
+      aci_vrf:
+        host: "{{ ansible_host }}"
+        username: "{{ username }}"
+        password: "{{ password }}"
+        validate_certs: no
+        vrf: "{{ item.1.name }}"
+        tenant: "{{ item.0.name }}"
+        descr: "{{ item.1.description }}"
+        state: present
+      with_subelements:
+        - "{{ tenants }}"
+        - vrfs
+
+    - name: Create Bridge Domains
+      aci_bd:
+        host: "{{ ansible_host }}"
+        username: "{{ username }}"
+        password: "{{ password }}"
+        validate_certs: no
+        tenant: "{{ item.0.tenant }}"
+        bd: "{{ item.1.bd.name }}"
+        vrf: "{{ item.1.vrf }}"
+        state: present
+      with_subelements: 
+        - "{{ tenants | json_query('[*].{tenant:name, bds:vrfs[].{bd:bds[] | [0], vrf:name}}') }}"
+        - bds
+
+    - name: Create a subnets
+      aci_bd_subnet:
+        host: "{{ ansible_host }}"
+        username: "{{ username }}"
+        password: "{{ password }}"
+        validate_certs: no
+        tenant: "{{ item.0.tenant }}"
+        bd: "{{ item.1.bd.name }}"
+        gateway: "{{ item.1.bd.gw }}"
+        mask: "{{ item.1.bd.mask }}"
+        state: present
+      with_subelements: 
+        - "{{ tenants | json_query('[*].{tenant:name, bds:vrfs[].{bd:bds[] | [0], vrf:name}}') }}"
+        - bds
+
+    - name: Create applications
+      aci_ap:
+        host: "{{ ansible_host }}"
+        username: "{{ username }}"
+        password: "{{ password }}"
+        validate_certs: no
+        tenant: "{{ item.0.name }}"
+        ap: "{{ item.1 }}"
+        state: present
+      with_subelements:
+        - "{{ tenants }}"
+        - apps
+
+    - name: Create EPGs
+      aci_epg:
+        host: "{{ ansible_host }}"
+        username: "{{ username }}"
+        password: "{{ password }}"
+        validate_certs: no
+        tenant: "{{ item.0.name }}"
+        ap: "{{ item.1.ap }}"
+        epg: "{{ item.1.name }}"
+        bd: "{{ item.1.bd }}"
+        state: present
+      with_subelements:
+        - "{{ tenants }}"
+        - epgs
+
+    - name: Create contracts
+      aci_contract:
+        host: "{{ ansible_host }}"
+        username: "{{ username }}"
+        password: "{{ password }}"
+        validate_certs: no
+        tenant: "{{ item.0.name }}"
+        contract: "{{ item.1.name }}"
+        scope: application-profile
+        state: present
+      with_subelements:
+        - "{{ tenants }}"
+        - contracts
+  
+    - name: Create contract subjects
+      aci_contract_subject:
+        host: "{{ ansible_host }}"
+        username: "{{ username }}"
+        password: "{{ password }}"
+        validate_certs: no
+        tenant: "{{ item.0.name }}"
+        contract: "{{ item.1.name }}"
+        subject: "{{ item.1.subj }}"
+        reverse_filter: yes
+        state: present
+      with_subelements:
+        - "{{ tenants }}"
+        - contracts
+  
+    - name: Bind contract subject to filter
+      aci_contract_subject_to_filter:
+        host: "{{ ansible_host }}"
+        username: "{{ username }}"
+        password: "{{ password }}"
+        validate_certs: no
+        tenant: "{{ item.0.name }}"
+        contract: "{{ item.1.name }}"
+        subject: "{{ item.1.subj }}"
+        filter: "{{ item.1.filter }}"
+        state: present
+      with_subelements:
+        - "{{ tenants }}"
+        - contracts
+  
+    - name: Bind contract to EPG (provider)
+      aci_epg_to_contract:
+        host: "{{ ansible_host }}"
+        username: "{{ username }}"
+        password: "{{ password }}"
+        validate_certs: no
+        tenant: "{{ item.0.name }}"
+        ap: "{{ item.1.ap }}"
+        epg: "{{ item.1.name }}"
+        contract: "{{ item.1.contract }}"
+        contract_type: provider
+        state: present
+      with_subelements:
+        - "{{ tenants }}"
+        - epgs
+
+    - name: Bind contract to EPG (consumer)
+      aci_epg_to_contract:
+        host: "{{ ansible_host }}"
+        username: "{{ username }}"
+        password: "{{ password }}"
+        validate_certs: no
+        tenant: "{{ item.0.name }}"
+        ap: "{{ item.1.ap }}"
+        epg: "{{ item.1.name }}"
+        contract: "{{ item.1.contract }}"
+        contract_type: consumer
+        state: present
+      with_subelements:
+        - "{{ tenants }}"
+        - epgs

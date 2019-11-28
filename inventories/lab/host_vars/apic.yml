@@ -1,0 +1,80 @@
+---
+hostname: apic
+
+tenants:
+  - name: tn-DemoLab-Ansible
+    description: Tenant for Ansible playbooks testing
+    apps:
+      - AppProfile0_RESTAPI
+      - AppProfile2_RESTAPI
+      - AppNetwork
+    vrfs:
+      - name: VRF0-RESTAPI
+        description: VRF0-RESTAPI
+        bds:
+          - name: BD0-RESTAPI
+            gw: 10.1.1.1
+            mask: 24
+          - name: BD1-RESTAPI
+            gw: 10.1.2.1
+            mask: 24
+      - name: VRF2-RESTAPI
+        description: VRF2-RESTAPI
+        bds:
+          - name: BD2-RESTAPI
+            gw: 10.1.3.1
+            mask: 24
+      - name: VRF-Network
+        description: VRF-Network
+        bds:
+          - name: BD-EPG-408-Passive
+            gw: 10.106.208.62
+            mask: 26
+          - name: BD-EPG-408-Active
+            gw: 10.15.208.62
+            mask: 26
+          - name: BD-EPG-409-Passive
+            gw: 10.106.208.126
+            mask: 26
+          - name: BD-EPG-409-Active
+            gw: 10.15.208.126
+            mask: 26
+    contracts:
+      - name: Permit_IP_any_any_AppScope
+        subj: Any_to_Any_Subject
+        filter: Any_Filter
+    filters:
+      - name: Any_Filter
+        description: Allow all traffic
+        entries:
+          - name: Any
+            ether_type: ip
+    epgs:
+      - name: EPG0_RESTAPI
+        ap: AppProfile0_RESTAPI
+        bd: BD0-RESTAPI
+        contract: Permit_IP_any_any_AppScope
+      - name: EPG1_RESTAPI
+        ap: AppProfile0_RESTAPI
+        bd: BD1-RESTAPI
+        contract: Permit_IP_any_any_AppScope
+      - name: EPG2_RESTAPI
+        ap: AppProfile2_RESTAPI
+        bd: BD2-RESTAPI
+        contract: Permit_IP_any_any_AppScope
+      - name: EPG-408-Passive
+        ap: AppNetwork
+        bd: BD-EPG-408-Passive
+        contract: Permit_IP_any_any_AppScope
+      - name: EPG-408-Active
+        ap: AppNetwork
+        bd: BD-EPG-408-Active
+        contract: Permit_IP_any_any_AppScope
+      - name: EPG-409-Passive
+        ap: AppNetwork
+        bd: BD-EPG-409-Passive
+        contract: Permit_IP_any_any_AppScope
+      - name: EPG-409-Active
+        ap: AppNetwork
+        bd: BD-EPG-409-Active
+        contract: Permit_IP_any_any_AppScope
