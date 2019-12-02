@@ -4,6 +4,12 @@ Playbook consists of 2 plays:
 * First play reads XLSX file (`aci.xlsx` by default) and populates `vars/vars.yml` file.
 * Second play connects to ACI and does all the work
 
+## Requirements
+* Ansible >= 2.7.9
+* Docker (optional)
+* Vagrant (optional)
+* Virtualbox (optional)
+
 ## Usage
 1. Rename `hosts-sample.ini` to `hosts.ini` and edit accordingly
 2. Rename `aci-sample.xlsx` to `aci.xlsx`
