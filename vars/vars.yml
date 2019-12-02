@@ -10,7 +10,7 @@ tenants:
       - AppNetwork
     vrfs:
       - name: VRF0-RESTAPI
-        description: VRF0-RESTAPI
+        description: vrf 1123
         bds:
           - name: BD0-RESTAPI
             gw: 10.1.1.1
@@ -19,13 +19,13 @@ tenants:
             gw: 10.1.2.1
             mask: 24
       - name: VRF2-RESTAPI
-        description: VRF2-RESTAPI
+        description: vrf 2
         bds:
           - name: BD2-RESTAPI
             gw: 10.1.3.1
             mask: 24
       - name: VRF-Network
-        description: VRF-Network
+        description: vrf 3
         bds:
           - name: BD-EPG-408-Passive
             gw: 10.106.208.62

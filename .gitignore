@@ -1,1 +1,4 @@
 *.retry
+vagrant/.vagrant/*
+aci.xlsx
+hosts.ini

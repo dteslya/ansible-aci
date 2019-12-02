@@ -1,7 +1,38 @@
 ---
-- name: PLAY 1
+- name: Generate vars.yml from XLSX
+  hosts: localhost
+  connection: local
+  gather_facts: no
+  
+  vars:
+    defcon_query: "[?Parameter=='DefaultContract'].Value|[0]"
+    xls_file: "aci.xlsx"
+  
+  tasks:
+    - name: Get facts from XLSX file
+      xls_to_facts:
+        src: "{{ xls_file }}"
+#    - debug:
+#        msg: "{{ ansible_facts }}"
+
+    - name: Extract DefaultContract setting
+      set_fact:
+        DefaultContract: "{{ spreadsheet_Settings | json_query(defcon_query) }}"
+
+    - name: Extract application
+      set_fact:
+        apps: "{{ spreadsheet_Sheet2 | json_query('[*].Application') }}"
+
+    - name: Create vars.yml
+      template:
+        src: templates/vars.j2
+        dest: vars/vars.yml
+
+- name: Apply settings to APIC
   hosts: apic
   connection: local
+  vars_files:
+   - vars/vars.yml
   gather_facts: no
   
   tasks:
@@ -129,7 +160,7 @@
       with_subelements:
         - "{{ tenants }}"
         - contracts
-  
+
     - name: Create contract subjects
       aci_contract_subject:
         host: "{{ ansible_host }}"
@@ -144,7 +175,7 @@
       with_subelements:
         - "{{ tenants }}"
         - contracts
-  
+
     - name: Bind contract subject to filter
       aci_contract_subject_to_filter:
         host: "{{ ansible_host }}"
@@ -159,7 +190,7 @@
       with_subelements:
         - "{{ tenants }}"
         - contracts
-  
+
     - name: Bind contract to EPG (provider)
       aci_epg_to_contract:
         host: "{{ ansible_host }}"

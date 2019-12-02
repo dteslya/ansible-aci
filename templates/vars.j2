@@ -1,0 +1,46 @@
+---
+hostname: apic
+
+tenants:
+{% for tenant in spreadsheet_Tenants %}
+  - name: {{ tenant.Tenant }}
+    description: {{ tenant.Description }}
+    apps:
+{% for app in apps|unique %}
+      - {{ app }}
+{% endfor %}
+    vrfs:
+{% for row in spreadsheet_VRFs %}
+      - name: {{ row.VRF }}
+        description: {{ row.Description }}
+        bds:
+{% for bd in spreadsheet_Sheet2 %}
+{% if bd.VRF == row.VRF %}
+          - name: {{ bd.Bridge_Domain }}
+            gw: {{ bd.Gateway }}
+            mask: {{ bd.Mask }}
+{% endif %}
+{% endfor %}
+{% endfor %}
+{% if DefaultContract %}
+    contracts:
+      - name: Permit_IP_any_any_AppScope
+        subj: Any_to_Any_Subject
+        filter: Any_Filter
+    filters:
+      - name: Any_Filter
+        description: Allow all traffic
+        entries:
+          - name: Any
+            ether_type: ip
+{% endif %}
+    epgs:
+{% for epg in spreadsheet_Sheet2 %}
+      - name: {{ epg.EPG }}
+        ap: {{ epg.Application }}
+        bd: {{ epg.Bridge_Domain }}
+{% if DefaultContract %}
+        contract: Permit_IP_any_any_AppScope
+{% endif %}
+{% endfor %}
+{% endfor %}
