@@ -5,9 +5,10 @@ Playbook consists of 2 plays:
 * Second play connects to ACI and does all the work
 
 ## Usage
-1. Rename `aci-sample.xlsx` to `aci.xlsx`
-2. Populate `aci.xlsx`
-3. Run playbook
+1. Rename `hosts-sample.ini` to `hosts.ini` and edit accordingly
+2. Rename `aci-sample.xlsx` to `aci.xlsx`
+3. Populate `aci.xlsx`
+4. Run playbook
 
 ### Running natively
 `ansible-playbook -i hosts.ini playbook.yml`
