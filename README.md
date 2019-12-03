@@ -20,7 +20,7 @@ Playbook consists of 2 plays:
 `ansible-playbook -i hosts.ini playbook.yml`
 
 ### Running in docker
-`./ansible-helper.sh playbook.yml`
+`./ansible-helper.sh -i hosts.ini playbook.yml`
 
 ### Running in vagrant box
 ```bash
