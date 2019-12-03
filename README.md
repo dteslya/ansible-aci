@@ -26,7 +26,7 @@ Playbook consists of 2 plays:
 ```bash
 cd vagrant
 vagrant up
-vagrant ssh -c "cd ansible-aci; ./ansible-helper.sh playbook.yml"
+vagrant ssh -c "cd ansible-aci; ./ansible-helper.sh -i hosts.ini playbook.yml"
 ```
 
 ### Populating XLSX
