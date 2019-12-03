@@ -4,3 +4,4 @@ aci.xlsx
 hosts.ini
 vars/vars.yml
 *.bak
+.DS_Store
