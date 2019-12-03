@@ -2,3 +2,4 @@
 vagrant/.vagrant/*
 aci.xlsx
 hosts.ini
+vars/vars.yml
