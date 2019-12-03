@@ -23,6 +23,11 @@
       set_fact:
         apps: "{{ spreadsheet_Sheet2 | json_query('[*].Application') }}"
 
+    - name: Ensure vars directory exists
+      file:
+        path: vars
+        state: directory
+
     - name: Create vars.yml
       template:
         src: templates/vars.j2
