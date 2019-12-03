@@ -11,8 +11,8 @@ Playbook consists of 2 plays:
 * Virtualbox (optional)
 
 ## Usage
-1. Rename `hosts-sample.ini` to `hosts.ini` and edit accordingly
-2. Rename `aci-sample.xlsx` to `aci.xlsx`
+1. Rename `hosts.ini.sample` to `hosts.ini` and edit accordingly
+2. Rename `aci.xlsx.sample` to `aci.xlsx`
 3. Populate `aci.xlsx`
 4. Run playbook
 
